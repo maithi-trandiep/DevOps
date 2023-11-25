@@ -1,0 +1,16 @@
+services:
+  redis:
+    image: redislabs/redismod:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+  
+  app:
+    build: .
+    container_name: app
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
