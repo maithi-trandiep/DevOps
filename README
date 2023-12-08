@@ -11,7 +11,7 @@ Il faut se mettre dans le répertoire **terraform** pour cette partie.
 Connectez-vous avec azure CLI :
 > $ az login
 
-***!! Renseignez le fichier `terraform.tfvars` et modifiez la valeurs de variables dans ce fichier.***
+***!! Renseignez le fichier `terraform.tfvars` et modifiez la valeurs de variables dans ce fichier si vous souhaitez.***
 
 Initializez votre environement d'excécution Terraform, cela permet de télécharger les plugins et modules décrits dans les fichiers de configuration :
 
@@ -36,8 +36,8 @@ Il faut se mettre dans le répertoire **flask-app** pour cette partie.
 
 > $ cd flask-app
 
-Connectez-vous à votre conteneur de registre :
-> $ az arc login --name <container_registry_name>
+Connectez-vous à votre conteneur de registre ***<container_registry_name>*** :
+> $ az arc login --name arcesgimaithi
 
 Démarrez les services définis dans le fichier `docker-compose.yml`:
 > $ docker-compose up -d
@@ -45,11 +45,11 @@ Démarrez les services définis dans le fichier `docker-compose.yml`:
 Vérifiez si l'image `flask-app-app` est bien créée :
 > $ docker image ls
 
-Tag l'image avec le nom du serveur pour le resgitry :
-> $ docker tag flask-app-app <container_registry_name>.azurecr.io/flask-app-app
+Tag l'image avec le nom du serveur pour le resgitry, le format du nom ***<container_registry_name>.azurecr.io*** :
+> $ docker tag flask-app-app arcesgimaithi.azurecr.io/flask-app-app
 
 Push l'image sur la ressource ACR :
-> $ docker push <container_registry_name>.azurecr.io/flask-app-app
+> $ docker push arcesgimaithi.azurecr.io/flask-app-app
 
 
 
