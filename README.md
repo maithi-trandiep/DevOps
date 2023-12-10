@@ -69,7 +69,7 @@ Build et push de l'image de l'application **flask-app** avec un processeur ARM:
 $ docker buildx build --platform linux/amd64,linux/arm64 -t acresgimaithi.azurecr.io/flask-app:v1 --push .
 ```
 
-Build et push de l'image de l'application **flask-app** avec un processeur ARM:
+Build et push de l'image de l'application **flask-app** sans un processeur ARM:
 
 Build:
 ```bash
