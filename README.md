@@ -73,7 +73,7 @@ Build et push de l'image de l'application **flask-app** sans un processeur ARM:
 
 Build:
 ```bash
-docker build -t acresgimaithi.azurecr.io/flask-app:v1 .
+$ docker build -t acresgimaithi.azurecr.io/flask-app:v1 .
 ```
 
 Push:
