@@ -6,51 +6,103 @@
 
 Il faut se mettre dans le répertoire **terraform** pour cette partie.
 
-> $ cd terraform
+```bash
+$ cd terraform
+```
 
 Connectez-vous avec azure CLI :
-> $ az login
+```bash
+$ az login
+```
 
 ***!! Renseignez le fichier `terraform.tfvars` et modifiez la valeurs de variables dans ce fichier si vous souhaitez.***
 
 Initializez votre environement d'excécution Terraform, cela permet de télécharger les plugins et modules décrits dans les fichiers de configuration :
 
 Le fichier `main.tf` contient principalement la configuration.
-> $ terraform init
+```bash
+$ terraform init -upgrade
+```
 
 Visualisez les changements de configuration avant de les appliquer à Azure :
-> $ terraform plan
+```bash
+$ terraform plan
+```
 
 Si les changements sont corrects, appliquez les avec cette commande et confirmez l'exécution :
-> $ terraform apply
+```bash
+$ terraform apply
+```
+Stocker l'adresse IP publique dans une variable.
+```bash
+$ PUBLIC_IP=$(terraform output public_ip)
+```
 
 Allez sur le portail Azure pour vérifier les ressources créées : <a>
 https://portal.azure.com/
 </a>
 
-Au cas de besoin, détruisez les ressources dans la configuration avec :
-> $ terraform destroy
 ### 2. Push de l'image Docker sur le Container Resgistry dans Azure
 
 Il faut se mettre dans le répertoire **flask-app** pour cette partie.
-
-> $ cd flask-app
+```bash
+$ cd ../flask-app
+```
 
 Connectez-vous à votre conteneur de registre ***<container_registry_name>*** :
-> $ az arc login --name arcesgimaithi
+```bash
+$ az acr login --name acresgimaithi
+```
 
-Démarrez les services définis dans le fichier `docker-compose.yml`:
-> $ docker-compose up -d
+Build l'image de l'application **flask-app**:
+```bash
+$ docker buildx build --platform linux/amd64,linux/arm64 -t acresgimaithi.azurecr.io/flask-app:v1 --push .
+```
 
-Vérifiez si l'image `flask-app-app` est bien créée :
-> $ docker image ls
+### 3. Deploy l'application avec Kubernetes
 
-Tag l'image avec le nom du serveur pour le resgitry, le format du nom ***<container_registry_name>.azurecr.io*** :
-> $ docker tag flask-app-app arcesgimaithi.azurecr.io/flask-app-app
+Il faut se mettre dans le répertoire **kubernetes** pour cette partie.
+```bash
+$ cd ../kubernetes
+$ az aks get-credentials --overwrite-existing -n aksesgimaithi -g rg-esgi-maithi
 
-Push l'image sur la ressource ACR :
-> $ docker push arcesgimaithi.azurecr.io/flask-app-app
+$ ACR_NAME=acresgimaithi
+$ SERVICE_PRINCIPAL_NAME=flask-app-esgimaithi
+$ ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query "id" --output tsv)
+$ PASSWORD=$(az ad sp create-for-rbac --name $SERVICE_PRINCIPAL_NAME --scopes $ACR_REGISTRY_ID --role acrpull --query "password" --output tsv)
+$ USER_NAME=$(az ad sp list --display-name $SERVICE_PRINCIPAL_NAME --query "[].appId" --output tsv)
 
+$ NAMESPACE=ingress-basic
+$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+$ helm repo update
+$ helm install nginx-ingress ingress-nginx/ingress-nginx \   
+    --create-namespace \
+    --namespace $NAMESPACE \
+    --set controller.service.loadBalancerIP=$PUBLIC_IP \
+    --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"="/healthz"
+
+$ kubectl create secret docker-registry secret-pull \
+    --namespace $NAMESPACE \
+    --docker-server=acresgimaithi.azurecr.io \
+    --docker-username=$USER_NAME \
+    --docker-password=$PASSWORD
+
+$ kubectl apply -f flask-app-ingress.yaml
+$ kubectl apply -f flask-app-deployment.yaml
+$ kubectl apply -f flask-app-service.yaml
+$ kubectl apply -f redis-deployment.yaml
+$ kubectl apply -f redis-service.yaml
+```
+Vérifiez si tout fonctionne bien :
+```bash
+TEST=$(echo $PUBLIC_IP | tr -d '"')
+curl $TEST
+```
+
+Au cas de besoin, détruisez les ressources dans la configuration avec :
+```bash
+$ terraform destroy
+```
 
 
 

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+  namespace: ingress-basic
+spec:
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+      - name: flask-app
+        image: acresgimaithi.azurecr.io/flask-app:v1
+        ports:
+        - containerPort: 8000
+      imagePullSecrets:
+        - name: secret-pull
