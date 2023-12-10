@@ -4,6 +4,16 @@
 
 ### 1. Déployer les ressources sur Terraform
 
+#### Précision
+
+Certaines des commandes utilisent la création de variables. Si vous utilisez un environnement powershell,
+voici comment créer une variable sous powershell:
+
+```shell
+$MAVARIABLE=mavaleur
+```
+
+
 Il faut se mettre dans le répertoire **terraform** pour cette partie.
 
 ```bash
@@ -44,7 +54,7 @@ https://portal.azure.com/
 
 ### 2. Push de l'image Docker sur le Container Resgistry dans Azure
 
-Il faut se mettre dans le répertoire **flask-app** pour cette partie.
+Il faut se mettre dans le répertoire **flask-app** pour cette partie et allumer docker.
 ```bash
 $ cd ../flask-app
 ```
@@ -54,9 +64,21 @@ Connectez-vous à votre conteneur de registre ***<container_registry_name>*** :
 $ az acr login --name acresgimaithi
 ```
 
-Build l'image de l'application **flask-app**:
+Build et push de l'image de l'application **flask-app** avec un processeur ARM:
 ```bash
 $ docker buildx build --platform linux/amd64,linux/arm64 -t acresgimaithi.azurecr.io/flask-app:v1 --push .
+```
+
+Build et push de l'image de l'application **flask-app** avec un processeur ARM:
+
+Build:
+```bash
+docker build -t acresgimaithi.azurecr.io/flask-app:v1 .
+```
+
+Push:
+```bash
+$ docker push acresgimaithi.azurecr.io/flask-app:v1 
 ```
 
 ### 3. Deploy l'application avec Kubernetes
