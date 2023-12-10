@@ -64,41 +64,25 @@ Connectez-vous à votre conteneur de registre ***<container_registry_name>*** :
 $ az acr login --name acresgimaithi
 ```
 
+Il faut ensuite build et push l'image docker de l'application **flask-app**:
+
 Build et push de l'image de l'application **flask-app** avec un processeur ARM:
 ```bash
 $ docker buildx build --platform linux/amd64,linux/arm64 -t acresgimaithi.azurecr.io/flask-app:v1 --push .
 ```
 
 Build et push de l'image de l'application **flask-app** sans un processeur ARM:
-```bash
-$ docker buildx build --platform -t acresgimaithi.azurecr.io/flask-app:v1 --push .
-```
 
-#### Si cela ne fonctionne pas en une ligne, essayez comme il suit selon votre processeur:
-
-Build et push de l'image de l'application **flask-app** sans un processeur ARM:
-
-Build sans ARM:
+Build:
 ```bash
 $ docker build -t acresgimaithi.azurecr.io/flask-app:v1 .
 ```
 
-Push sans ARM :
+Push:
 ```bash
 $ docker push acresgimaithi.azurecr.io/flask-app:v1 
 ```
 
-Build et push de l'image de l'application **flask-app** avec un processeur ARM:
-
-Build avec ARM:
-```bash
-$ docker build --platform linux/amd64,linux/arm64 -t acresgimaithi.azurecr.io/flask-app:v1 .
-```
-
-Push avec ARM :
-```bash
-$ docker push acresgimaithi.azurecr.io/flask-app:v1 
-```
 
 ### 3. Deploy l'application avec Kubernetes
 
